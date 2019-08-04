@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h3>Listing Tasks</h3>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Status</th>
+      <% if can? :manage, :all  %><th>User</th><% end %>
+      <th>Project</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @tasks.each do |task| %>
+      <tr>
+        <td><%= task.name %></td>
+        <td><%= task.status %></td>
+       <% if can? :manage, :all  %><td><%= task.user.try(:email) %></td><% end %>
+        <td><%= task.project.try(:name) %></td>
+        <td><%= link_to 'Show', task %></td>
+        <td><%= link_to 'Edit', edit_task_path(task) %></td>
+        <% if can? :update, tasks_path %><td><%= link_to 'Destroy', task, method: :delete, data: { confirm: 'Are you sure?' } %></td><% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<% if can? :create, tasks_path %> <%= link_to 'New Task', new_task_path %> <% end %>

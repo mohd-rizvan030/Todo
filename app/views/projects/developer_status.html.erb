@@ -1,0 +1,164 @@
+<style>
+table, th, td {
+  border: 1px solid black;
+}
+
+</style>
+
+<p id="notice"><%= notice %></p>
+
+<h3>Developers Todos Status</h3>
+<% task_h = @user_tasks.group_by{|t|[t.status,t.user]} %>
+<% status_h = @user_tasks.group_by{|t| t.status }.map { |k,v| [k, v.count] } %>
+<% status_constant = {'in_progress' => 'In Progress','done' => 'Done', 'new' => 'NEW'} %>
+
+<table>
+      <tbody>
+        <% users = task_h.map{|k,v| k[1]}.uniq %>
+        <% users.unshift('') %>
+        <% users.each do |user| %>
+            <td><strong><%= user.try(:email) || 'Status' %></strong></td>
+        <% end %>
+        <% users.shift %>
+        <% status_constant.each do |status,value| %>
+        <tr>
+            <td><%= value %></td>
+            <% users.each do |user| %>
+              <% if task_h[[status,user]].present? %>
+                <td><% task_h[[status,user]].each do |task| %>
+                  <p><%= task.name %></p>
+                 <% end %> 
+                </td>
+                <% else %>
+                <td></td>
+              <% end %>
+            <% end %>
+         </tr>
+         <% end %>
+         
+    </tbody>
+</table>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+
+<div id="container" style="width: 300px; height: 300px; margin: 0 auto; border:1px solid black;"></div>
+
+<script type="text/javascript">
+  var chart;
+$(document).ready(function() {
+    
+/* PIE CHART THEME */
+Highcharts.theme = {
+   /* LINE/BAR/COLUMN/SLICE COLORS - only used for slices for Plex, if we add multiple data sets in future releases, these colors will work with the rendering of other sets */
+   colors: ['#395C9B', '#923532', '#7B972E', '#6A538D', '#3B83A1', '#CB7221', '#F2E200'],
+    
+   /* CHART TITLE */
+   title: {
+      style: {
+         color: '#000',
+         font: 'bold 16px "Lucida Grande", Helvetica, Arial, sans-serif'
+      }
+   },
+
+   /* CHART SUBTITLE */
+   subtitle: {
+      style: {
+         color: '#666666',
+         font: 'bold 12px "Lucida Grande", Helvetica, Arial, sans-serif'
+      }
+   },
+    
+   /* CHART X-AXIS */
+   xAxis: {
+      lineColor: '#000',
+      tickColor: '#000',
+      labels: {
+         style: {
+            color: '#000',
+            font: '11px "Lucida Grande", Helvetica, Arial, sans-serif'
+         }
+      },
+      title: {
+         style: {
+            color: '#333',
+            font: 'bold 12px "Lucida Grande", Helvetica, Arial, sans-serif'
+         }
+      }
+   },
+    
+   /* CHART Y-AXIS */
+   yAxis: {
+      minorTickInterval: 'false', /* OPTIONAL PARAMETER - SHOWS HORIZONTAL LINES in between tick values */
+      lineColor: '#000',
+      lineWidth: 1,
+      tickWidth: 1,
+      tickColor: '#000',
+      labels: {
+         style: {
+            color: '#000',
+            font: '11px "Lucida Grande", Helvetica, Arial, sans-serif'
+         }
+      },
+      title: {
+         style: {
+            color: '#333',
+            font: 'bold 12px "Lucida Grande", Helvetica, Arial, sans-serif'
+         }
+      }
+   },
+    
+   /* LINE CHART COLORS */
+   plotOptions: {
+       line: {
+           lineWidth: 3,
+           shadow: false,
+           marker: {
+                fillColor: '#fff', /* LINE POINT COLOR */
+                lineWidth: 2,
+                radius: 4,
+                symbol: 'circle', /* "circle", "square", "diamond", "triangle" and "triangle-down" */
+                lineColor: null // inherit from above defined colors
+           }
+       },
+       column: {
+          cursor: 'pointer',
+           borderColor: '#333',
+           borderWidth: 1,
+           shadow: false
+       },
+       bar: {
+          cursor: 'pointer',
+          borderColor: '#333',
+          borderWidth: 1,
+          shadow: false
+       },
+       pie: {
+          cursor: 'pointer',
+          borderColor: '#666',
+          borderWidth: 1,
+          shadow: false
+       }
+   }    
+}; 
+    
+// Apply the theme
+var highchartsOptions = Highcharts.setOptions(Highcharts.theme);        
+    
+    chart = new Highcharts.Chart({
+        chart: {
+            renderTo: 'container',
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false
+        },
+        title: {
+            text: 'Developers Task Status'
+        },
+        series: [{
+            type: 'pie',
+            name: 'Task Status',
+            data: <%= raw status_h %>
+        }]
+    });
+});
+</script>
+

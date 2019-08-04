@@ -1,0 +1,41 @@
+<style>
+table, th, td {
+  border: 1px solid black;
+}
+
+</style>
+
+<p id="notice"><%= notice %></p>
+
+<h3>Project's Todos Status</h3>
+<% task_h = @project_tasks.group_by{|t|[t.status,t.project]} %>
+<% status_constant = {'in_progress' => 'In Progress','done' => 'Done'} %>
+
+<table>
+      <tbody>
+        <% projects = task_h.map{|k,v| k[1]}.uniq %>
+        <% projects.unshift('') %>
+        <% projects.each do |project| %>
+            <td><strong><%= project.try(:name) || 'Status' %></strong></td>
+        <% end %>
+        <% projects.shift %>
+        <% status_constant.each do |status,value| %>
+        <tr>
+            <td><%= value %></td>
+            <% projects.each do |project| %>
+              <% if task_h[[status,project]].present? %>
+                <td><% task_h[[status,project]].each do |task| %>
+                  <p><%= task.name %></p>
+                 <% end %> 
+                </td>
+                <% else %>
+                <td></td>
+              <% end %>
+            <% end %>
+         </tr>
+         <% end %>
+         
+    </tbody>
+</table>
+
+
